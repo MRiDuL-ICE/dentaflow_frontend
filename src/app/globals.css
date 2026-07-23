@@ -1,49 +1,234 @@
+/* ── Bootstrap ─────────────────────────────────── */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* ── CSS Variables ──────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand */
+  --df-primary: #1CABB0;
+  --df-primary-dark: #00687A;
+  --df-primary-light: #e5f6f6;
+  --df-accent: #3B82F6;
+
+  /* Light theme */
+  --df-bg: #F8FAFC;
+  --df-bg-secondary: #FFFFFF;
+  --df-bg-card: #FFFFFF;
+  --df-border: #E2E8F0;
+  --df-text-primary: #0F172A;
+  --df-text-secondary: #64748B;
+  --df-text-muted: #94A3B8;
+  --df-sidebar-bg: #FFFFFF;
+  --df-sidebar-text: #374151;
+  --df-sidebar-active: #1CABB0;
+  --df-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --df-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+
+  /* Shared */
+  --df-radius: 0px;
+  --df-radius-lg: 14px;
+  --df-transition: all 0.2s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark theme */
+[data-theme='dark'] {
+  --df-bg: #000309;
+  --df-bg-secondary: #010711;
+  --df-bg-card: #080a11;
+  --df-border: #0c1015;
+  --df-text-primary: #F1F5F9;
+  --df-text-secondary: #94A3B8;
+  --df-text-muted: #64748B;
+  --df-sidebar-bg: #1E293B;
+  --df-sidebar-text: #CBD5E1;
+  --df-sidebar-active: #1D9E75;
+  --df-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --df-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* ── Global Styles ──────────────────────────────── */
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+body {
+  background-color: var(--df-bg);
+  color: var(--df-text-primary);
+  font-family: 'Montserrat', Helvetica, Arial, Verdana, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* ── Bootstrap Overrides ────────────────────────── */
+.card {
+  background: var(--df-bg-card) !important;
+  border-color: var(--df-border) !important;
+  border-radius: var(--df-radius-lg) !important;
+  box-shadow: var(--df-shadow) !important;
+  color: var(--df-text-primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--df-primary) !important;
+  border-color: var(--df-primary) !important;
+  border-radius: var(--df-radius) !important;
+}
+
+.btn-primary:hover {
+  /* background-color: var(--df-primary-dark) !important; */
+  border-color: var(--df-primary-dark) !important;
+}
+
+
+.btn-outline {
+  border-radius: var(--df-radius) !important;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--df-bg-secondary) !important;
+  border-color: var(--df-border) !important;
+  color: var(--df-text-primary) !important;
+  border-radius: var(--df-radius) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--df-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(29, 158, 117, 0.25) !important;
+}
+
+.table {
+  color: var(--df-text-primary) !important;
+}
+
+.table> :not(caption)>*>* {
+  background-color: transparent !important;
+  border-color: var(--df-border) !important;
+}
+
+.modal-content {
+  background-color: var(--df-bg-card) !important;
+  border-color: var(--df-border) !important;
+  color: var(--df-text-primary) !important;
+}
+
+.dropdown-menu {
+  background-color: var(--df-bg-card) !important;
+  border-color: var(--df-border) !important;
+}
+
+.dropdown-item {
+  color: var(--df-text-primary) !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--df-bg-secondary) !important;
+}
+
+/* ── Custom Components ──────────────────────────── */
+.df-navbar {
+  background: var(--df-bg-card);
+  border-bottom: 1px solid var(--df-border);
+  height: 64px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  /* sits above the sidebar so it visually overlaps its top edge */
+}
+
+.df-sidebar {
+  background: var(--df-sidebar-bg);
+  border-right: 1px solid var(--df-border);
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 99;
+  /* below the navbar — navbar's top 64px covers this region */
+  padding-top: 64px;
+  /* pushes nav items below the overlapping navbar */
+  transition: var(--df-transition);
+}
+
+.text-primary {
+  color: var(--df-primary) !important;
+}
+
+.df-main {
+  margin-left: 260px;
+  min-height: 100vh;
+  background: var(--df-bg);
+  transition: var(--df-transition);
+}
+
+.df-kpi-card {
+  border-radius: var(--df-radius-lg);
+  border: 1px solid var(--df-border);
+  background: var(--df-bg-card);
+  padding: 1.5rem;
+  transition: var(--df-transition);
+}
+
+.df-kpi-card:hover {
+  box-shadow: var(--df-shadow-md);
+  transform: translateY(-2px);
+}
+
+.df-badge-primary {
+  background: var(--df-primary);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.df-badge-active {
+  background: var(--df-primary-light);
+  color: var(--df-primary-dark);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.df-page-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--df-border);
+  background: var(--df-bg-card);
+}
+
+/* ── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--df-border);
+  border-radius: 3px;
+}
+
+/* ── Animations ─────────────────────────────────── */
+.df-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
