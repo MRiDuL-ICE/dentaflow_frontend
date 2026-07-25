@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Montserrat } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  variable: "--font-montserrat",
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DentaFlow - Your Complete Dental Solution",
@@ -21,8 +18,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={montserrat.className}>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "var(--df-bg-card)",
+              color: "var(--df-text-primary)",
+              border: "1px solid var(--df-border)",
+              fontSize: 14,
+            },
+            success: {
+              iconTheme: {
+                primary: "#1D9E75",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#EF4444",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
       </body>
     </html>
   );

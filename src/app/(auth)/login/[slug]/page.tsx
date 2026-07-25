@@ -74,8 +74,8 @@ export default function SlugLoginPage() {
                   src="/logo.png"
                   alt="Logo"
                   className="mb-3"
-                  width={100}
-                  height={100}
+                  width={160}
+                  height={130}
                 />
                 <p style={{ color: "var(--df-text-secondary)" }}>
                   Sign in to your account

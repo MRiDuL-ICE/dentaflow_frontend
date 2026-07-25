@@ -13,10 +13,10 @@ import {
   Label,
   Input,
   Button,
-  Alert,
   Spinner,
 } from "reactstrap";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { superAdminApi } from "@/lib/api/endpoints/auth";
 import Link from "next/link";
@@ -29,12 +29,12 @@ export default function SuperAdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
+
+    const toastId = toast.loading("Signing in...");
 
     try {
       const res = await superAdminApi.login(email, password);
@@ -53,11 +53,17 @@ export default function SuperAdminLoginPage() {
         refreshToken: tokens.refreshToken,
       });
 
-      router.replace("/super-admin/dashboard");
+      toast.success("Welcome, Super Admin!", { id: toastId });
+
+      setTimeout(() => router.replace("/super-admin/dashboard"), 800);
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-      setError(msg ?? "Login failed.");
+      const msg = (
+        err as {
+          response?: { data?: { message?: string } };
+        }
+      )?.response?.data?.message;
+
+      toast.error(msg ?? "Login failed.", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -82,8 +88,7 @@ export default function SuperAdminLoginPage() {
                   alt="Logo"
                   width={160}
                   height={130}
-                  className="mb-3"
-                  unoptimized
+                  className="mb-2"
                 />
                 <p
                   className="small mb-0"
@@ -95,16 +100,6 @@ export default function SuperAdminLoginPage() {
 
               <Card>
                 <CardBody className="p-4">
-                  {error && (
-                    <Alert
-                      color="danger"
-                      className="mb-3 py-2 small"
-                      toggle={() => setError("")}
-                    >
-                      {error}
-                    </Alert>
-                  )}
-
                   <Form onSubmit={handleSubmit}>
                     <FormGroup>
                       <Label className="small fw-medium">Email</Label>
@@ -115,6 +110,7 @@ export default function SuperAdminLoginPage() {
                         required
                         autoFocus
                         autoComplete="email"
+                        disabled={loading}
                       />
                     </FormGroup>
                     <FormGroup>
@@ -125,6 +121,7 @@ export default function SuperAdminLoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         autoComplete="current-password"
+                        disabled={loading}
                       />
                     </FormGroup>
                     <Button
@@ -133,7 +130,14 @@ export default function SuperAdminLoginPage() {
                       type="submit"
                       disabled={loading || !email || !password}
                     >
-                      {loading ? <Spinner size="sm" /> : "Sign In"}
+                      {loading ? (
+                        <>
+                          <Spinner size="sm" className="me-2" />
+                          Signing in...
+                        </>
+                      ) : (
+                        "Sign In"
+                      )}
                     </Button>
                   </Form>
                 </CardBody>
@@ -143,7 +147,7 @@ export default function SuperAdminLoginPage() {
                 className="text-center mt-3 small"
                 style={{ color: "var(--df-text-muted)" }}
               >
-                <Link href="/login" className="text-primary">
+                <Link href="/login" style={{ color: "var(--df-primary)" }}>
                   ← Back to clinic login
                 </Link>
               </p>

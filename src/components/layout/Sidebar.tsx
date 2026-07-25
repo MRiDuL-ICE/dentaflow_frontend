@@ -19,6 +19,7 @@ import { useAuthStore } from "@/lib/store/auth.store";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/lib/api/endpoints";
 import { GoSidebarExpand, GoSidebarCollapse } from "react-icons/go";
+import toast from "react-hot-toast";
 
 interface NavItem {
   label: string;
@@ -77,14 +78,17 @@ export function Sidebar({ slug, collapsed, onCollapse }: SidebarProps) {
   );
 
   async function handleLogout() {
-    console.log("click logout");
+    const toastId = toast.loading("Signing out...");
     try {
-      if (refreshToken) await authApi.logout(refreshToken);
+      if (refreshToken) {
+        await authApi.logout(refreshToken);
+      }
     } catch {
       /* ignore */
     }
     logout();
     router.push("/login");
+    toast.success("Signed out successfully.", { id: toastId });
   }
 
   return (
@@ -107,7 +111,10 @@ export function Sidebar({ slug, collapsed, onCollapse }: SidebarProps) {
                   ? "var(--df-sidebar-active)"
                   : "var(--df-sidebar-text)",
                 background: active ? "var(--df-primary-light)" : "transparent",
-                borderRadius: "6px",
+                borderRadius: active ? "0 6px 6px 0" : "6px",
+                borderLeft: active
+                  ? "3px solid var(--df-primary)"
+                  : "3px solid transparent",
                 margin: "0 10px",
                 fontWeight: active ? 500 : 400,
                 transition: "var(--df-transition)",
@@ -172,7 +179,7 @@ export function Sidebar({ slug, collapsed, onCollapse }: SidebarProps) {
         )} */}
 
         <button
-          className="btn btn-sm w-100 d-flex align-items-center"
+          className="btn btn-outline-sm w-100 d-flex align-items-center"
           style={{
             color: "var(--df-text-secondary)",
             background: "none",

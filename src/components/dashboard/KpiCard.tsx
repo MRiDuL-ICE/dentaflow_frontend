@@ -45,7 +45,7 @@ export function KpiCard({
             {title}
           </p>
           <h3
-            className="fw-bold mb-0"
+            className="fw-bold mb-0 h-36 border-2"
             style={{ color: "var(--df-text-primary)", fontSize: 28 }}
           >
             {value}

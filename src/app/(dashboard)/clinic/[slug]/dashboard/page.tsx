@@ -1,6 +1,6 @@
 "use client";
 
-import { Row, Col, Card, CardBody, CardHeader, Spinner } from "reactstrap";
+import { Row, Col, Card, CardBody, CardHeader } from "reactstrap";
 import {
   AreaChart,
   Area,
@@ -22,6 +22,8 @@ import {
 } from "react-icons/fi";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { useDashboard, useRevenueDaily } from "@/lib/hooks/use-analytics";
+import KpiCardSkeleton from "@/components/skeletons/KpiCardSkeleton";
+import ChartCardSkeleton from "@/components/skeletons/ChartCardSkeleton";
 
 export default function DashboardPage() {
   const { data: dashboard, isLoading } = useDashboard();
@@ -29,11 +31,22 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: 400 }}
-      >
-        <Spinner style={{ color: "var(--df-primary)" }} />
+      <div className="df-fade-in">
+        <Row className="g-3 mb-4">
+          {[0, 1, 2, 3].map((i) => (
+            <Col xs={12} sm={6} xl={3} key={i}>
+              <KpiCardSkeleton />
+            </Col>
+          ))}
+        </Row>
+        <Row className="g-3 mb-4">
+          <Col xs={12} lg={8}>
+            <ChartCardSkeleton titleWidth={180} />
+          </Col>
+          <Col xs={12} lg={4}>
+            <ChartCardSkeleton titleWidth={150} />
+          </Col>
+        </Row>
       </div>
     );
   }
@@ -105,6 +118,7 @@ export default function DashboardPage() {
             trend={
               (kpis?.billing?.overdue_invoices ?? 0) > 0 ? "down" : "neutral"
             }
+            change={`+${kpis?.billing?.new_30d ?? 0} this month`}
             icon={<FiAlertCircle />}
             color="#EF4444"
             delay={0.3}

@@ -45,12 +45,11 @@ export function Navbar({ title, sidebarWidth }: NavbarProps) {
           className="d-flex align-items-center px-3 py-1"
           style={{
             background: "var(--df-primary-light)",
-            border: "1px solid var(--df-primary)",
-            borderRadius: "var(--df-radius-lg)",
+            borderRadius: "var(--df-radius-md)",
             gap: 8,
           }}
         >
-          <FiSearch style={{ color: "var(--df-text-muted)" }} />
+          <FiSearch style={{ color: "var(--df-primary)" }} />
           <input
             placeholder="Search"
             style={{
@@ -58,7 +57,7 @@ export function Navbar({ title, sidebarWidth }: NavbarProps) {
               background: "transparent",
               outline: "none",
               color: "var(--df-text-primary)",
-              fontSize: 14,
+              fontSize: 16,
               width: 360,
             }}
           />
@@ -109,6 +108,7 @@ export function Navbar({ title, sidebarWidth }: NavbarProps) {
             style={{
               width: 36,
               height: 36,
+              border: "2px solid var(--df-primary)",
               borderRadius: "50%",
               background: "var(--df-primary)",
               color: "#fff",

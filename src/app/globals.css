@@ -4,10 +4,14 @@
 /* ── CSS Variables ──────────────────────────────── */
 :root {
   /* Brand */
-  --df-primary: #1CABB0;
-  --df-primary-dark: #00687A;
-  --df-primary-light: #e5f6f6;
-  --df-accent: #3B82F6;
+  --df-primary: #002972;
+  --df-primary-dark: #001d52;
+  /* darker navy instead of teal */
+  --df-primary-light: #e6ebf5;
+  /* light navy tint instead of teal tint */
+  --df-secondary: #1B75BC;
+  /* new: tagline blue */
+  --df-accent: #FFBD59;
 
   /* Light theme */
   --df-bg: #F8FAFC;
@@ -19,13 +23,15 @@
   --df-text-muted: #94A3B8;
   --df-sidebar-bg: #FFFFFF;
   --df-sidebar-text: #374151;
-  --df-sidebar-active: #1CABB0;
+  --df-sidebar-active: #002972;
+  /* navy instead of teal */
   --df-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   --df-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
 
   /* Shared */
   --df-radius: 0px;
-  --df-radius-lg: 14px;
+  --df-radius-md: 6px;
+  --df-radius-lg: 12px;
   --df-transition: all 0.2s ease;
 }
 
@@ -74,14 +80,47 @@ body {
   border-radius: var(--df-radius) !important;
 }
 
-.btn-primary:hover {
-  /* background-color: var(--df-primary-dark) !important; */
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+  background-color: var(--df-primary-dark) !important;
   border-color: var(--df-primary-dark) !important;
 }
 
 
 .btn-outline {
   border-radius: var(--df-radius) !important;
+}
+
+.btn-sm {
+  border-radius: var(--df-radius-lg) !important;
+  font-size: 0.875rem !important;
+  padding: 0.25rem 0.5rem !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+}
+
+.btn-sm:hover,
+.btn-sm:active,
+.btn-sm:focus {
+  background-color: var(--df-primary-dark) !important;
+  border-color: var(--df-primary-dark) !important;
+}
+
+.btn-outline-sm {
+  border-radius: var(--df-radius) !important;
+  font-size: 0.875rem !important;
+  padding: 0.25rem 0.5rem !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+}
+
+.btn-outline-sm:hover,
+.btn-outline-sm:active,
+.btn-outline-sm:focus {
+  background-color: var(--df-primary-dark) !important;
+  border-color: var(--df-primary-dark) !important;
+  color: #fff !important;
 }
 
 .form-control,
@@ -95,7 +134,7 @@ body {
 .form-control:focus,
 .form-select:focus {
   border-color: var(--df-primary) !important;
-  box-shadow: 0 0 0 0.2rem rgba(29, 158, 117, 0.25) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 41, 114, 0.2) !important;
 }
 
 .table {
@@ -230,5 +269,24 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.df-skeleton {
+  background: linear-gradient(90deg,
+      var(--df-border) 25%,
+      var(--df-bg) 50%,
+      var(--df-border) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
   }
 }
