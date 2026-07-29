@@ -1,6 +1,6 @@
 "use client";
 
-import { FiSun, FiMoon, FiBell, FiSearch } from "react-icons/fi";
+import { FiSun, FiMoon, FiBell, FiSearch, FiX, FiMenu } from "react-icons/fi";
 import { useThemeStore } from "@/lib/store/theme.store";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { Badge } from "reactstrap";
@@ -10,136 +10,147 @@ import { useState } from "react";
 
 interface NavbarProps {
   title: string;
-  sidebarWidth: number; // 64 when collapsed, 260 when expanded — keeps the brand box aligned with the sidebar underneath it
+  sidebarWidth: number;
+  onMenuToggle?: () => void; // called on mobile to open/close the sidebar
 }
 
-export function Navbar({ title, sidebarWidth }: NavbarProps) {
+export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
   const { theme, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
   const [avatarError, setAvatarError] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="df-navbar d-flex shadow-sm">
-      {/* Brand — matches sidebar width, sits directly above it */}
-
-      <Image
-        src="/logo without text.png"
-        alt="Logo"
-        width={60}
-        height={60}
-        unoptimized
-        className="p-2"
-      />
-
-      {/* Title + right section */}
-      <div
-        className="d-flex flex-grow-1 px-4 justify-content-between align-items-center"
-        // style={{ border: "4px solid black" }}
+    <>
+      <header
+        className="df-navbar shadow-sm"
+        style={{ display: "flex", alignItems: "center" }}
       >
-        <div className="d-flex">
-          <Breadcrumbs />
-        </div>
-
-        {/* Search */}
-        <div
-          className="d-flex align-items-center px-3 py-1"
-          style={{
-            background: "var(--df-primary-light)",
-            borderRadius: "var(--df-radius-md)",
-            gap: 8,
-          }}
-        >
-          <FiSearch style={{ color: "var(--df-primary)" }} />
-          <input
-            placeholder="Search"
-            style={{
-              border: "none",
-              background: "transparent",
-              outline: "none",
-              color: "var(--df-text-primary)",
-              fontSize: 16,
-              width: 360,
-            }}
-          />
-        </div>
-
-        <div className="d-flex align-items-center gap-3">
-          {/* Notifications */}
+        {/* Mobile search overlay (sits on top of everything) */}
+        <div className={`df-search-overlay${searchOpen ? " open" : ""}`}>
+          <FiSearch style={{ color: "var(--df-primary)", flexShrink: 0 }} />
+          <input placeholder="Search…" autoFocus={searchOpen} />
           <button
-            className="btn position-relative d-flex align-items-center justify-content-center"
-            style={{
-              width: 38,
-              height: 38,
-              color: "var(--df-text-secondary)",
-              background: "none",
-              border: "1px solid var(--df-border)",
-              borderRadius: "50%",
-              padding: 0,
-            }}
+            className="df-icon-btn"
+            style={{ border: "none" }}
+            onClick={() => setSearchOpen(false)}
+            aria-label="Close search"
           >
-            <FiBell />
-            <Badge
-              color="success"
-              pill
-              className="position-absolute top-0 start-100 translate-middle"
-              style={{ fontSize: 9 }}
-            >
-              3
-            </Badge>
+            <FiX />
           </button>
+        </div>
 
-          {/* Theme toggle */}
-          {/* <button
-            className="btn btn-sm"
-            onClick={toggleTheme}
-            style={{
-              color: "var(--df-text-secondary)",
-              background: "none",
-              border: "1px solid var(--df-border)",
-              borderRadius: "var(--df-radius)",
-            }}
-          >
-            {theme === "light" ? <FiMoon /> : <FiSun />}
-          </button> */}
+        {/* Hamburger — mobile only, opens sidebar */}
+        {/* <button
+          className="df-icon-btn df-menu-toggle"
+          style={{ display: "none", marginLeft: 8, border: "none" }}
+          onClick={onMenuToggle}
+          aria-label="Open menu"
+        >
+          <FiMenu />
+        </button> */}
 
-          {/* Avatar */}
+        {/* Logo */}
+        <Image
+          src="/logo without text.png"
+          alt="DentaFlow"
+          width={56}
+          height={56}
+          unoptimized
+          className="df-logo p-2"
+          style={{ flexShrink: 0 }}
+        />
+
+        {/* Center: breadcrumbs + search */}
+        <div
+          className="d-flex align-items-center justify-content-between px-3"
+          style={{ flex: 1, minWidth: 0, gap: 16 }}
+        >
+          <div className="df-breadcrumbs-wrap" style={{ minWidth: 0 }}>
+            <Breadcrumbs />
+          </div>
+
+          {/* Desktop search */}
+          <div className="df-search-wrap">
+            <FiSearch style={{ color: "var(--df-primary)", flexShrink: 0 }} />
+            <input placeholder="Search…" />
+          </div>
+
+          {/* Right: notifications + avatar + theme toggle */}
           <div
-            className="d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+            className="df-navbar-right d-flex align-items-center"
             style={{
-              width: 36,
-              height: 36,
-              border: "2px solid var(--df-primary)",
-              borderRadius: "50%",
-              background: "var(--df-primary)",
-              color: "#fff",
-              fontSize: 14,
-              overflow: "hidden",
-              position: "relative",
+              gap: 12,
+              flexShrink: 0,
+              // marginLeft: "auto",
             }}
           >
-            {user && !avatarError ? (
-              <Image
-                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZG9jdG9yfGVufDB8fDB8fHww"
-                alt={
-                  `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() ||
-                  "User avatar"
-                }
-                width={36}
-                height={36}
-                unoptimized
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <>
-                {user?.firstName?.[0]}
-                {user?.lastName?.[0]}
-              </>
-            )}
+            {/* Mobile search toggle */}
+            <button
+              className="df-icon-btn df-search-toggle"
+              style={{ display: "none" }}
+              onClick={() => setSearchOpen(true)}
+              aria-label="Open search"
+            >
+              <FiSearch />
+            </button>
+
+            {/* Notifications */}
+            <button
+              className="df-icon-btn position-relative"
+              aria-label="Notifications"
+            >
+              <FiBell />
+              <Badge
+                color="success"
+                pill
+                className="position-absolute top-0 start-100 translate-middle"
+                style={{ fontSize: 9 }}
+              >
+                3
+              </Badge>
+            </button>
+
+            {/* Avatar */}
+            <div
+              className="d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+              style={{
+                width: 34,
+                height: 34,
+                border: "2px solid var(--df-primary)",
+                borderRadius: "50%",
+                background: "var(--df-primary)",
+                color: "#fff",
+                fontSize: 13,
+                overflow: "hidden",
+                position: "relative",
+                cursor: "pointer",
+              }}
+            >
+              {user && !avatarError ? (
+                <Image
+                  src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZG9jdG9yfGVufDB8fDB8fHww"
+                  alt={
+                    `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() ||
+                    "User avatar"
+                  }
+                  width={34}
+                  height={34}
+                  unoptimized
+                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <>
+                  {user?.firstName?.[0]}
+                  {user?.lastName?.[0]}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 

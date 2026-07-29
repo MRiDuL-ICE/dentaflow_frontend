@@ -15,7 +15,8 @@ export const authApi = {
   logout: (refreshToken: string) =>
     apiClient.post("/auth/logout", { refreshToken }),
 
-  refresh: () => apiClient.post("/auth/refresh", {}),
+  refresh: (refreshToken: string) =>
+    apiClient.post("/auth/refresh", { refreshToken }),
 
   requestMagicLink: (email: string, clinicSlug: string) =>
     apiClient.post("/auth/magic-link", { email, clinicSlug }),

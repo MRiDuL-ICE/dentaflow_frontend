@@ -100,11 +100,11 @@ export const useAuthStore = create<AuthStore>()(
       ),
       partialize: (state) => ({
         user: state.user,
+        accessToken: state.accessToken,
         clinicSlug: state.clinicSlug,
         isSuperAdmin: state.isSuperAdmin,
         isAuthenticated: state.isAuthenticated,
         refreshToken: state.refreshToken,
-        // accessToken intentionally excluded — memory only
       }),
     },
   ),

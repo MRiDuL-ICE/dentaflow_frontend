@@ -134,6 +134,7 @@ apiClient.interceptors.response.use(
             ...(clinicSlug ? { "x-clinic-slug": clinicSlug } : {}),
           },
           withCredentials: true,
+          timeout: 15_000,
         },
       );
 

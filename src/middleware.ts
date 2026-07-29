@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/super-admin/login"];
+const PUBLIC_PATHS = ["/login", "/super-admin/login", "/clinic/register"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -10,6 +10,8 @@ export function middleware(req: NextRequest) {
   if (isPublic) return NextResponse.next();
 
   const authCookie = req.cookies.get("dentaflow-auth")?.value;
+
+  // console.log("authCookie", authCookie);
 
   if (!authCookie) {
     const url = new URL("/login", req.url);
