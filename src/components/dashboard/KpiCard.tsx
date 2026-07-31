@@ -9,7 +9,8 @@ interface KpiCardProps {
   change?: string;
   trend?: "up" | "down" | "neutral";
   icon: ReactNode;
-  color: string;
+  baseColor: string; // darker half, e.g. "#14a44d"
+  accentColor: string; // lighter half, e.g. "#1ac75e"
   delay?: number;
 }
 
@@ -19,56 +20,92 @@ export function KpiCard({
   change,
   trend,
   icon,
-  color,
+  baseColor,
+  accentColor,
   delay = 0,
 }: KpiCardProps) {
-  const trendColor =
-    trend === "up"
-      ? "#10B981"
-      : trend === "down"
-        ? "#EF4444"
-        : "var(--df-text-muted)";
+  const trendIcon = trend === "up" ? "↑" : trend === "down" ? "↓" : "→";
 
   return (
     <motion.div
-      className="df-kpi-card"
+      style={{
+        position: "relative",
+        borderRadius: 14,
+        overflow: "hidden",
+        padding: "20px 18px",
+        minHeight: 110,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.3 }}
     >
-      <div className="d-flex align-items-start justify-content-between">
-        <div>
-          <p
-            className="small mb-1"
-            style={{ color: "var(--df-text-secondary)" }}
-          >
-            {title}
-          </p>
-          <h3
-            className="fw-bold mb-0 h-36 border-2"
-            style={{ color: "var(--df-text-primary)", fontSize: 28 }}
-          >
-            {value}
-          </h3>
-          {change && (
-            <span className="small" style={{ color: trendColor }}>
-              {trend === "up" ? "↑" : trend === "down" ? "↓" : "→"} {change}
-            </span>
-          )}
-        </div>
-        <div
-          className="d-flex align-items-center justify-content-center"
+      {/* Base (darker) half */}
+      <div style={{ position: "absolute", inset: 0, background: baseColor }} />
+
+      {/* Accent (lighter) half — diagonal clip */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: accentColor,
+          clipPath: "polygon(45% 0%, 100% 0%, 100% 100%, 30% 100%)",
+        }}
+      />
+
+      {/* Icon */}
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 18,
+          width: 38,
+          height: 38,
+          borderRadius: 10,
+          background: "rgba(255,255,255,0.18)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 18,
+          color: "#fff",
+          zIndex: 1,
+        }}
+      >
+        {icon}
+      </div>
+
+      {/* Content */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <p
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            background: color + "20",
-            color,
-            fontSize: 22,
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: "0.04em",
+            color: "rgba(255,255,255,0.75)",
+            textTransform: "uppercase",
+            marginBottom: 6,
           }}
         >
-          {icon}
-        </div>
+          {title}
+        </p>
+        <h3
+          style={{
+            fontSize: 28,
+            fontWeight: 700,
+            color: "#fff",
+            lineHeight: 1,
+            marginBottom: 6,
+          }}
+        >
+          {value}
+        </h3>
+        {change && (
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
+            {trendIcon} {change}
+          </span>
+        )}
       </div>
     </motion.div>
   );

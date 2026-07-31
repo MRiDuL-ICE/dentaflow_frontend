@@ -85,7 +85,8 @@ export default function DashboardPage() {
             change="vs last month"
             trend="up"
             icon={<FiDollarSign />}
-            color="#1D9E75"
+            baseColor="#14a44d"
+            accentColor="#1ac75e"
             delay={0}
           />
         </Col>
@@ -96,7 +97,8 @@ export default function DashboardPage() {
             change={`${kpis?.appointments?.upcoming_7d ?? 0} upcoming`}
             trend="neutral"
             icon={<FiCalendar />}
-            color="#3B82F6"
+            baseColor="#1565c0"
+            accentColor="#2196f3"
             delay={0.1}
           />
         </Col>
@@ -107,7 +109,8 @@ export default function DashboardPage() {
             change={`+${kpis?.patients?.new_30d ?? 0} this month`}
             trend="up"
             icon={<FiUsers />}
-            color="#8B5CF6"
+            baseColor="#6a1b9a"
+            accentColor="#ab47bc"
             delay={0.2}
           />
         </Col>
@@ -120,7 +123,8 @@ export default function DashboardPage() {
             }
             change={`+${kpis?.billing?.new_30d ?? 0} this month`}
             icon={<FiAlertCircle />}
-            color="#EF4444"
+            baseColor="#b71c1c"
+            accentColor="#ef5350"
             delay={0.3}
           />
         </Col>
