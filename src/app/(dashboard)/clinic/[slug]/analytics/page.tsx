@@ -31,8 +31,35 @@ import {
   usePatientGrowth,
   useAiInsights,
 } from "@/lib/hooks/use-analytics";
+import AiInsightsSkeleton from "./components/AiInsightsSkeleton";
 
 const COLORS = ["#1D9E75", "#3B82F6", "#8B5CF6", "#F59E0B", "#EF4444"];
+
+interface ParsedInsight {
+  title: string;
+  insight: string;
+  action: string;
+}
+
+function parseInsights(text: string): ParsedInsight[] {
+  const items: ParsedInsight[] = [];
+  const blocks = text.split(/\n(?=\d+\.\s)/);
+  for (const block of blocks) {
+    const titleMatch = block.match(/^\d+\.\s+\*\*(.+?)\*\*/);
+    const insightMatch = block.match(
+      /-\s+Insight:\s+(.+?)(?=\n-\s+Action:|$)/s,
+    );
+    const actionMatch = block.match(/-\s+Action:\s+(.+?)$/s);
+    if (titleMatch) {
+      items.push({
+        title: titleMatch[1].trim(),
+        insight: insightMatch ? insightMatch[1].trim().replace(/\n/g, " ") : "",
+        action: actionMatch ? actionMatch[1].trim().replace(/\n/g, " ") : "",
+      });
+    }
+  }
+  return items;
+}
 
 export default function AnalyticsPage() {
   const { data: dashboard } = useDashboard();
@@ -66,6 +93,10 @@ export default function AnalyticsPage() {
         name: t.treatment_type,
         value: parseInt(t.count),
       })) ?? [];
+
+  const parsedInsights = insights?.insights
+    ? parseInsights(insights.insights)
+    : [];
 
   return (
     <div className="df-fade-in">
@@ -252,36 +283,151 @@ export default function AnalyticsPage() {
                   background: "transparent",
                   borderBottom: "1px solid var(--df-border)",
                   fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                🤖 AI Insights
-              </CardHeader>
-              <CardBody>
-                {insightsLoading ? (
-                  <div className="text-center py-3">
-                    <Spinner style={{ color: "var(--df-primary)" }} />
-                    <p
-                      className="small mt-2"
-                      style={{ color: "var(--df-text-muted)" }}
-                    >
-                      Generating AI insights...
-                    </p>
-                  </div>
-                ) : insights?.insights ? (
-                  <div
+                <span>AI Insights</span>
+                {!insightsLoading && parsedInsights.length > 0 && (
+                  <span
                     style={{
-                      whiteSpace: "pre-wrap",
-                      color: "var(--df-text-primary)",
-                      fontSize: 14,
-                      lineHeight: 1.7,
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: "#1D9E75",
+                      background: "rgba(29,158,117,0.08)",
+                      border: "1px solid rgba(29,158,117,0.2)",
+                      borderRadius: 20,
+                      padding: "2px 10px",
                     }}
                   >
-                    {insights.insights}
+                    {parsedInsights.length} insights
+                  </span>
+                )}
+              </CardHeader>
+              <CardBody style={{ padding: 0 }}>
+                {insightsLoading ? (
+                  <AiInsightsSkeleton />
+                ) : parsedInsights.length > 0 ? (
+                  <div>
+                    {parsedInsights.map((item, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          borderBottom:
+                            i < parsedInsights.length - 1
+                              ? "1px solid var(--df-border)"
+                              : "none",
+                        }}
+                      >
+                        {/* Title row */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 12,
+                            padding: "16px 20px 10px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              color: "var(--df-text-muted)",
+                              minWidth: 18,
+                              paddingTop: 2,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {i + 1}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: "var(--df-text-primary)",
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {item.title}
+                          </span>
+                        </div>
+
+                        {/* Insight text */}
+                        {item.insight && (
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: 13,
+                              color: "var(--df-text-secondary)",
+                              lineHeight: 1.65,
+                              padding: "0 20px 12px 50px",
+                            }}
+                          >
+                            {item.insight}
+                          </p>
+                        )}
+
+                        {/* Action row */}
+                        {item.action && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 8,
+                              padding: "10px 20px 16px 50px",
+                              borderTop: "1px solid var(--df-border)",
+                              background: "rgba(29,158,117,0.04)",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 600,
+                                color: "#1D9E75",
+                                whiteSpace: "nowrap",
+                                paddingTop: 2,
+                                flexShrink: 0,
+                              }}
+                            >
+                              → Action
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 13,
+                                color: "var(--df-text-secondary)",
+                                lineHeight: 1.65,
+                              }}
+                            >
+                              {item.action}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <Alert color="info">
-                    Not enough data to generate insights yet.
-                  </Alert>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "2.5rem",
+                      color: "var(--df-text-muted)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontWeight: 500,
+                        fontSize: 14,
+                        color: "var(--df-text-primary)",
+                        margin: "0 0 4px",
+                      }}
+                    >
+                      Not enough data yet
+                    </p>
+                    <p style={{ fontSize: 12, margin: 0 }}>
+                      Insights will appear once your clinic has more activity.
+                    </p>
+                  </div>
                 )}
               </CardBody>
             </Card>
