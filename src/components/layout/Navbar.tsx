@@ -197,10 +197,16 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                     top: "calc(100% + 8px)",
                     right: 0,
                     width: 200,
-                    background: "var(--df-bg-card)",
-                    border: "1px solid var(--df-border)",
-                    borderRadius: 10,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                    background: "rgba(255,255,255,0.55)",
+                    backdropFilter: "blur(40px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(40px) saturate(180%)",
+                    border: "1px solid rgba(255,255,255,0.6)",
+                    borderRadius: 14,
+                    boxShadow: `
+    0 8px 32px rgba(0,0,0,0.12),
+    0 2px 8px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8)
+  `,
                     zIndex: 1000,
                     overflow: "hidden",
                   }}
@@ -263,7 +269,7 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                         }}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.background =
-                            "var(--df-border)")
+                            "rgba(255,255,255,0.3)")
                         }
                         onMouseLeave={(e) =>
                           (e.currentTarget.style.background = "none")
@@ -302,7 +308,7 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                       }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.background =
-                          "rgba(239,68,68,0.06)")
+                          "rgba(239,68,68,0.3)")
                       }
                       onMouseLeave={(e) =>
                         (e.currentTarget.style.background = "none")

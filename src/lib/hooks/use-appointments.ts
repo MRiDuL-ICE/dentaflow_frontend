@@ -8,28 +8,59 @@ interface ApiResponse<T> {
   statusCode: number;
 }
 
+export interface AppointmentQuery {
+  search?: string;
+  patientId?: string;
+  dentistId?: string;
+  status?: string;
+  chairId?: string;
+  treatmentType?: string;
+  from?: string;
+  to?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface AppointmentMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AppointmentListResponse {
+  data: Record<string, unknown>[];
+  meta: AppointmentMeta;
+}
+
 export const appointmentKeys = {
   all: ["appointments"] as const,
-  list: (params?: object) => [...appointmentKeys.all, "list", params] as const,
+  list: (params?: AppointmentQuery) =>
+    [...appointmentKeys.all, "list", params] as const,
   detail: (id: string) => [...appointmentKeys.all, "detail", id] as const,
   chairs: ["appointments", "chairs"] as const,
 };
 
-export function useAppointments(params?: {
-  patientId?: string;
-  dentistId?: string;
-  status?: string;
-  from?: string;
-  to?: string;
-  page?: number;
-  limit?: number;
-}) {
+export function useAppointments(params?: AppointmentQuery) {
+  // Strip empty strings and undefined before sending to API
+  const cleanParams = params
+    ? (Object.fromEntries(
+        Object.entries(params).filter(
+          ([, v]) => v !== undefined && v !== "" && v !== null,
+        ),
+      ) as AppointmentQuery)
+    : undefined;
+
   return useQuery({
     queryKey: appointmentKeys.list(params),
     queryFn: async () => {
-      const res = await appointmentsApi.list(params);
-      return (res as AxiosResponse<ApiResponse<unknown>>).data.data;
+      const res = await appointmentsApi.list(cleanParams);
+      return (res as AxiosResponse<ApiResponse<AppointmentListResponse>>).data
+        .data;
     },
+    placeholderData: (prev) => prev,
   });
 }
 

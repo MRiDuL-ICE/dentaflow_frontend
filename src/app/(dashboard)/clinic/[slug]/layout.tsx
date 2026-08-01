@@ -54,7 +54,7 @@ export default function ClinicLayout({
     );
   }
 
-  const sidebarWidth = collapsed ? 64 : 260;
+  const sidebarWidth = collapsed ? 64 : 190;
 
   return (
     <div style={{ minHeight: "100vh" }}>

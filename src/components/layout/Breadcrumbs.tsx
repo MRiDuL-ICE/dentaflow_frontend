@@ -26,12 +26,12 @@ function formatSegment(segment: string) {
 export function Breadcrumbs() {
   const pathname = usePathname();
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = params?.slug as string;
 
   // Adjust this if your clinic name lives elsewhere in the store
   //   const { clinicName } = useAuthStore();
   const slugToName = slug
-    .split("-")
+    ?.split("-")
     .join(" ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 

@@ -1,21 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Col, Row } from "reactstrap";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FiCalendar, FiPlus } from "react-icons/fi";
 import { Button } from "reactstrap";
 
 import { useAppointments } from "@/lib/hooks/use-appointments";
+import { useAppointmentFilters } from "@/lib/hooks/use-appointment-filters";
 import { LayoutMode, LayoutToggle } from "./components/LayoutToggle";
 import {
   GridSkeletons,
   ListSkeletons,
 } from "./components/AppointmentSkeletons";
 import { AppointmentGridCard } from "./components/AppointmentGridCard";
-import { AppointmentListRow } from "./components/AppointmentListRow";
 import { BookAppointmentModal } from "./components/BookAppointmentModal";
 import { StatusUpdateModal } from "./components/StatusUpdateModal";
+import { AppointmentListTable } from "./components/AppointmentListTable";
+import { AppointmentPagination } from "./components/AppointmentPagination";
+import {
+  AppointmentToolbarInline,
+  AppointmentToolbarPanel,
+} from "./components/AppointmentToolbar";
 
 export default function AppointmentsPage() {
   const [layout, setLayout] = useState<LayoutMode>("grid");
@@ -24,30 +30,31 @@ export default function AppointmentsPage() {
     id: string;
     current: string;
   } | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
-  const { data, isLoading } = useAppointments({ limit: 50 });
+  const { filters, update, setPage, setSort, reset, activeFilterCount } =
+    useAppointmentFilters();
+  const { data, isLoading } = useAppointments(filters);
+
   const appointments = (data?.data ?? []) as Record<string, unknown>[];
+  const meta = data?.meta as
+    | { total: number; page: number; limit: number; totalPages: number }
+    | undefined;
 
-  function openStatusModal(id: string, current: string) {
+  const openStatusModal = useCallback((id: string, current: string) => {
     setStatusTarget({ id, current });
-  }
+  }, []);
 
   return (
     <>
-      <style>{`
-        @keyframes skeleton-shimmer {
-          0%   { background-position:  200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
-
       <div className="df-fade-in">
-        {/* ── Header ── */}
+        {/* Header */}
         <div
-          className="d-flex align-items-center justify-content-between mb-4"
+          className="d-flex align-items-center justify-content-between mb-3"
           style={{ flexWrap: "wrap", gap: 12 }}
         >
-          <div>
+          {/* Left: title */}
+          <div style={{ flexShrink: 0 }}>
             <h4
               className="fw-bold mb-0"
               style={{ color: "var(--df-text-primary)" }}
@@ -58,27 +65,50 @@ export default function AppointmentsPage() {
               className="small mb-0"
               style={{ color: "var(--df-text-secondary)" }}
             >
-              {isLoading ? "Loading..." : `${appointments.length} appointments`}
+              {isLoading ? "Loading…" : `${meta?.total ?? 0} appointments`}
             </p>
           </div>
 
-          <div className="d-flex align-items-center gap-2">
+          {/* Center: search + filter toggle — grows to fill space */}
+
+          {/* Right: layout toggle + book button */}
+          <div
+            className="d-flex align-items-center gap-2"
+            style={{ flexShrink: 0 }}
+          >
+            <AppointmentToolbarInline
+              filters={filters}
+              activeFilterCount={activeFilterCount}
+              onUpdate={update}
+              onReset={reset}
+              filterOpen={filterOpen}
+              onFilterToggle={() => setFilterOpen((o) => !o)}
+            />
             <LayoutToggle value={layout} onChange={setLayout} />
             <Button
               onClick={() => setBookOpen(true)}
               className="btn btn-primary d-flex align-items-center gap-2"
             >
-              <FiPlus style={{ fontSize: 14 }} /> Book Appointment
+              <FiPlus style={{ marginRight: 6 }} /> Book Appointment
             </Button>
           </div>
         </div>
 
-        {/* ── Body ── */}
+        {/* Filter panel + chips — renders below the header row */}
+        <AppointmentToolbarPanel
+          filters={filters}
+          activeFilterCount={activeFilterCount}
+          onUpdate={update}
+          onReset={reset}
+          open={filterOpen}
+        />
+
+        {/* Body */}
         {isLoading ? (
           layout === "grid" ? (
             <GridSkeletons count={6} />
           ) : (
-            <ListSkeletons count={6} />
+            <ListSkeletons count={8} />
           )
         ) : appointments.length === 0 ? (
           <div
@@ -90,6 +120,7 @@ export default function AppointmentsPage() {
               borderRadius: 16,
               border: "1px dashed var(--df-border)",
             }}
+            className="d-flex flex-column align-items-center justify-content-center"
           >
             <FiCalendar
               style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}
@@ -101,10 +132,10 @@ export default function AppointmentsPage() {
                 color: "var(--df-text-secondary)",
               }}
             >
-              No appointments yet
+              No appointments found
             </p>
             <p style={{ fontSize: 13, marginBottom: 20 }}>
-              Book the first appointment to get started.
+              Try adjusting your filters or book a new appointment.
             </p>
             <Button
               onClick={() => setBookOpen(true)}
@@ -125,9 +156,9 @@ export default function AppointmentsPage() {
               >
                 <Row className="g-3">
                   {appointments.map((appt, i) => (
-                    <Col key={appt["id"] as string} xs={12} md={6} xl={4}>
+                    <Col key={appt.id as string} xs={12} md={6} xl={4}>
                       <AppointmentGridCard
-                        appt={appt}
+                        appt={appt as any}
                         index={i}
                         onUpdateStatus={openStatusModal}
                       />
@@ -142,22 +173,25 @@ export default function AppointmentsPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="d-flex flex-column gap-2"
               >
-                {appointments.map((appt, i) => (
-                  <AppointmentListRow
-                    key={appt["id"] as string}
-                    appt={appt}
-                    index={i}
-                    onUpdateStatus={openStatusModal}
-                  />
-                ))}
+                <AppointmentListTable
+                  appointments={appointments as any[]}
+                  sortBy={filters.sortBy ?? "scheduled_at"}
+                  sortOrder={filters.sortOrder ?? "desc"}
+                  onSort={setSort}
+                  onUpdateStatus={openStatusModal}
+                />
               </motion.div>
             )}
           </AnimatePresence>
         )}
 
-        {/* ── Modals ── */}
+        {/* Pagination */}
+        {meta && meta.totalPages > 1 && (
+          <AppointmentPagination meta={meta} onPageChange={setPage} />
+        )}
+
+        {/* Modals */}
         <BookAppointmentModal
           isOpen={bookOpen}
           onClose={() => setBookOpen(false)}

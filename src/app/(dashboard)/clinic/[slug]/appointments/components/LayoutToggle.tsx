@@ -14,7 +14,7 @@ export function LayoutToggle({ value, onChange }: LayoutToggleProps) {
         display: "flex",
         background: "var(--df-surface-alt, #F8FAFC)",
         border: "1px solid var(--df-border)",
-        borderRadius: 10,
+        // borderRadius: 10,
         padding: 3,
         gap: 2,
       }}
@@ -27,7 +27,7 @@ export function LayoutToggle({ value, onChange }: LayoutToggleProps) {
           style={{
             width: 32,
             height: 32,
-            borderRadius: 7,
+            // borderRadius: 7,
             border: "none",
             background: value === mode ? "#fff" : "transparent",
             boxShadow: value === mode ? "0 1px 3px rgba(0,0,0,0.1)" : "none",

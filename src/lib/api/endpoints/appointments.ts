@@ -1,15 +1,9 @@
+import { AppointmentQuery } from "@/lib/hooks/use-appointments";
 import apiClient from "../client";
 
 export const appointmentsApi = {
-  list: (params?: {
-    patientId?: string;
-    dentistId?: string;
-    status?: string;
-    from?: string;
-    to?: string;
-    page?: number;
-    limit?: number;
-  }) => apiClient.get("/appointments", { params }),
+  list: (params?: AppointmentQuery) =>
+    apiClient.get("/appointments", { params }),
 
   get: (id: string) => apiClient.get(`/appointments/${id}`),
 

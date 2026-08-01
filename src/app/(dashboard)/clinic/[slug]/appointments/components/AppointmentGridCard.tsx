@@ -1,10 +1,41 @@
 import { motion } from "framer-motion";
-import { FiClock, FiEdit } from "react-icons/fi";
-import { StatusBadge } from "./StatusBadge";
+import { FiClock, FiEdit, FiUser } from "react-icons/fi";
 import { Badge, Button } from "reactstrap";
 
+interface Patient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+interface Dentist {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+interface Chair {
+  id: string;
+  name: string;
+}
+
+interface Appointment {
+  id: string;
+  status: string;
+  scheduledAt: string;
+  treatmentType: string;
+  durationMinutes: number;
+  notes?: string;
+  patient: Patient;
+  dentist: Dentist;
+  chair?: Chair | null;
+}
+
 interface AppointmentGridCardProps {
-  appt: Record<string, unknown>;
+  appt: Appointment;
   index: number;
   onUpdateStatus: (id: string, current: string) => void;
 }
@@ -23,16 +54,14 @@ export function AppointmentGridCard({
   index,
   onUpdateStatus,
 }: AppointmentGridCardProps) {
-  const isDone =
-    appt["status"] === "completed" || appt["status"] === "cancelled";
+  const isDone = appt.status === "completed" || appt.status === "cancelled";
 
-  const scheduledAt = appt["scheduled_at"] as string;
-  const date = new Date(scheduledAt).toLocaleDateString("en-US", {
+  const date = new Date(appt.scheduledAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  const [h, m] = scheduledAt.slice(11, 16).split(":").map(Number);
+  const [h, m] = appt.scheduledAt.slice(11, 16).split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
   const hour = h % 12 || 12;
   const time = `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
@@ -56,10 +85,9 @@ export function AppointmentGridCard({
       <div className="d-flex justify-content-between align-items-start">
         <Badge
           className="df-badge"
-          color={STATUS_COLORS[appt["status"] as string] ?? "secondary"}
+          color={STATUS_COLORS[appt.status] ?? "secondary"}
         >
-          {" "}
-          {(appt["status"] as string).replace("_", " ")}{" "}
+          {appt.status.replace("_", " ")}
         </Badge>
         <span style={{ fontSize: 12, color: "var(--df-text-muted)" }}>
           {date}
@@ -74,7 +102,34 @@ export function AppointmentGridCard({
           lineHeight: 1.3,
         }}
       >
-        {appt["treatment_type"] as string}
+        {appt.treatmentType}
+      </div>
+
+      {/* Patient & Dentist */}
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--df-text-secondary)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+        }}
+      >
+        <div className="d-flex align-items-center gap-2">
+          <FiUser style={{ fontSize: 11, flexShrink: 0 }} />
+          <span>
+            {appt.patient.firstName} {appt.patient.lastName}
+          </span>
+        </div>
+        <div
+          className="d-flex align-items-center gap-2"
+          style={{ color: "var(--df-text-muted)" }}
+        >
+          <span style={{ fontSize: 11 }}>🦷</span>
+          <span>
+            Dr. {appt.dentist.firstName} {appt.dentist.lastName}
+          </span>
+        </div>
       </div>
 
       <div
@@ -88,12 +143,12 @@ export function AppointmentGridCard({
       >
         <div className="d-flex align-items-center gap-2">
           <FiClock style={{ fontSize: 11, flexShrink: 0 }} />
-          {time} · {appt["duration_minutes"] as number} min
+          {time} · {appt.durationMinutes} min
         </div>
-        {typeof appt["chair_name"] === "string" && (
+        {appt.chair && (
           <div className="d-flex align-items-center gap-2">
             <span style={{ fontSize: 11 }}>🪑</span>
-            {appt["chair_name"] as string}
+            {appt.chair.name}
           </div>
         )}
       </div>
@@ -101,9 +156,7 @@ export function AppointmentGridCard({
       <div className="d-flex justify-content-end mt-auto pt-1">
         <Button
           disabled={isDone}
-          onClick={() =>
-            onUpdateStatus(appt["id"] as string, appt["status"] as string)
-          }
+          onClick={() => onUpdateStatus(appt.id, appt.status)}
           className="btn btn-primary btn-sm d-flex align-items-center gap-2"
           style={{
             cursor: isDone ? "not-allowed" : "pointer",

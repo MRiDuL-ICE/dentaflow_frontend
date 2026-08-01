@@ -34,14 +34,15 @@ export const superAdminApi = {
   login: (email: string, password: string) =>
     apiClient.post("/super-admin/login", { email, password }),
 
-  createClinic: (data: {
-    clinicName: string;
-    slug: string;
-    ownerEmail: string;
-    ownerFirstName: string;
-    ownerLastName: string;
-    ownerPassword: string;
-  }) => apiClient.post("/super-admin/clinics", data),
+  createClinic: (data: Record<string, string>) =>
+    apiClient.post("/super-admin/clinics", data),
+
+  listClinics: (page = 1, limit = 20) =>
+    apiClient.get(`/super-admin/clinics?page=${page}&limit=${limit}`),
+  getClinic: (slug: string) => apiClient.get(`/super-admin/clinics/${slug}`),
+
+  deactivateClinic: (slug: string) =>
+    apiClient.patch(`/super-admin/clinics/${slug}/deactivate`),
 };
 
 export default authApi;
