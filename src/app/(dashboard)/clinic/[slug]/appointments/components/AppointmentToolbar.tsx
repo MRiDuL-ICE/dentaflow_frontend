@@ -22,7 +22,6 @@ const INPUT_STYLE: React.CSSProperties = {
   height: 40,
   fontSize: 13,
   border: "1px solid var(--df-border)",
-  //   borderRadius: 8,
   background: "var(--df-surface)",
   color: "var(--df-text-primary)",
   outline: "none",
@@ -38,7 +37,6 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: 5,
 };
 
-// ── Inline part: search box + filter toggle button ──────────────────────────
 export function AppointmentToolbarInline({
   filters,
   activeFilterCount,
@@ -50,9 +48,17 @@ export function AppointmentToolbarInline({
   filterOpen: boolean;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "nowrap", // keep on one row; search box shrinks
+        minWidth: 0, // allow flex children to shrink below content size
+      }}
+    >
       {/* Search */}
-      <div style={{ position: "relative", flex: 1, maxWidth: 320 }}>
+      <div style={{ position: "relative", flex: "1 1 0", minWidth: 0 }}>
         <FiSearch
           style={{
             position: "absolute",
@@ -62,18 +68,20 @@ export function AppointmentToolbarInline({
             color: "var(--df-primary)",
             fontSize: 14,
             pointerEvents: "none",
+            flexShrink: 0,
           }}
         />
         <input
           type="text"
-          placeholder="Search patient, dentist, treatment…"
+          placeholder="Search patient, dentist…"
           value={filters.search ?? ""}
           onChange={(e) => onUpdate({ search: e.target.value })}
           style={{
             ...INPUT_STYLE,
             width: "100%",
             paddingLeft: 32,
-            paddingRight: 32,
+            paddingRight: filters.search ? 32 : 10,
+            boxSizing: "border-box",
           }}
         />
         {filters.search && (
@@ -102,7 +110,7 @@ export function AppointmentToolbarInline({
         onClick={onFilterToggle}
         style={{
           ...INPUT_STYLE,
-          padding: "0 14px",
+          padding: "0 12px",
           display: "flex",
           alignItems: "center",
           gap: 6,
@@ -111,11 +119,20 @@ export function AppointmentToolbarInline({
           background: filterOpen ? "var(--df-border)" : "var(--df-surface)",
           cursor: "pointer",
           position: "relative",
-          flexShrink: 0,
+          flexShrink: 0, // never let the button collapse
+          whiteSpace: "nowrap",
         }}
       >
         <FiSliders size={13} />
-        Filters
+        {/* Hide label text on very narrow screens */}
+        <span
+          style={{
+            display: "inline",
+          }}
+          className="df-filter-label"
+        >
+          Filters
+        </span>
         {activeFilterCount > 0 && (
           <span
             style={{
@@ -138,11 +155,17 @@ export function AppointmentToolbarInline({
           </span>
         )}
       </button>
+
+      {/* Inline style for responsive label hide */}
+      <style>{`
+        @media (max-width: 360px) {
+          .df-filter-label { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
 
-// ── Block part: filter panel + active chips (renders below the header row) ──
 export function AppointmentToolbarPanel({
   filters,
   activeFilterCount,
@@ -161,25 +184,36 @@ export function AppointmentToolbarPanel({
         marginTop: 12,
       }}
     >
-      {/* Filter panel */}
       {open && (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+            // 2 columns on mobile, auto-fill on larger screens
+            gridTemplateColumns: "repeat(2, 1fr)",
             gap: 10,
-            padding: "14px 16px",
+            padding: "14px 12px",
             background: "var(--df-surface)",
             border: "1px solid var(--df-border)",
             borderRadius: 10,
           }}
         >
+          <style>{`
+            @media (min-width: 480px) {
+              .df-filter-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; }
+            }
+          `}</style>
+
           <div>
             <label style={LABEL_STYLE}>Status</label>
             <select
               value={filters.status ?? ""}
               onChange={(e) => onUpdate({ status: e.target.value })}
-              style={{ ...INPUT_STYLE, width: "100%", padding: "0 8px" }}
+              style={{
+                ...INPUT_STYLE,
+                width: "100%",
+                padding: "0 8px",
+                boxSizing: "border-box",
+              }}
             >
               <option value="">All statuses</option>
               {STATUSES.map((s) => (
@@ -197,7 +231,12 @@ export function AppointmentToolbarPanel({
               placeholder="e.g. Root Canal"
               value={filters.treatmentType ?? ""}
               onChange={(e) => onUpdate({ treatmentType: e.target.value })}
-              style={{ ...INPUT_STYLE, width: "100%", padding: "0 8px" }}
+              style={{
+                ...INPUT_STYLE,
+                width: "100%",
+                padding: "0 8px",
+                boxSizing: "border-box",
+              }}
             />
           </div>
 
@@ -207,7 +246,12 @@ export function AppointmentToolbarPanel({
               type="date"
               value={filters.from ?? ""}
               onChange={(e) => onUpdate({ from: e.target.value })}
-              style={{ ...INPUT_STYLE, width: "100%", padding: "0 8px" }}
+              style={{
+                ...INPUT_STYLE,
+                width: "100%",
+                padding: "0 8px",
+                boxSizing: "border-box",
+              }}
             />
           </div>
 
@@ -217,7 +261,12 @@ export function AppointmentToolbarPanel({
               type="date"
               value={filters.to ?? ""}
               onChange={(e) => onUpdate({ to: e.target.value })}
-              style={{ ...INPUT_STYLE, width: "100%", padding: "0 8px" }}
+              style={{
+                ...INPUT_STYLE,
+                width: "100%",
+                padding: "0 8px",
+                boxSizing: "border-box",
+              }}
             />
           </div>
         </div>
@@ -296,9 +345,20 @@ function FilterChip({
         background: "#E6F1FB",
         color: "#185FA5",
         fontWeight: 500,
+        // prevent chips from overflowing their container
+        maxWidth: "100%",
+        overflow: "hidden",
       }}
     >
-      {label}
+      <span
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+      </span>
       <button
         onClick={onRemove}
         style={{
@@ -309,6 +369,7 @@ function FilterChip({
           padding: 0,
           lineHeight: 1,
           display: "flex",
+          flexShrink: 0,
         }}
       >
         <FiX size={11} />

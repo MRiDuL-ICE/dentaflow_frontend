@@ -74,7 +74,7 @@ export function AppointmentGridCard({
       style={{
         background: "var(--df-bg-card)",
         border: "1px solid var(--df-border)",
-        borderRadius: 14,
+        borderRadius: 6,
         padding: "18px 20px",
         display: "flex",
         flexDirection: "column",

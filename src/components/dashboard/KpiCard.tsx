@@ -30,7 +30,7 @@ export function KpiCard({
     <motion.div
       style={{
         position: "relative",
-        borderRadius: 14,
+        borderRadius: 6,
         overflow: "hidden",
         padding: "20px 18px",
         minHeight: 110,

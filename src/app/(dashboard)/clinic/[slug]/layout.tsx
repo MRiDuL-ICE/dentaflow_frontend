@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { Spinner } from "reactstrap";
 
+const MOBILE_BREAKPOINT = 768;
+
 export default function ClinicLayout({
   children,
 }: {
@@ -16,30 +18,34 @@ export default function ClinicLayout({
   const router = useRouter();
   const slug = params.slug as string;
 
-  const { isAuthenticated, isSuperAdmin, hasRole, setClinicSlug, clinicSlug } =
+  const { isAuthenticated, isSuperAdmin, setClinicSlug, clinicSlug } =
     useAuthStore();
 
   const [ready, setReady] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    // Not authenticated at all
+    const check = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
     if (!isAuthenticated) {
       router.replace(`/login/${slug}`);
       return;
     }
-
-    // Super admin shouldn't be in clinic dashboard
     if (isSuperAdmin) {
       router.replace("/super-admin/dashboard");
       return;
     }
-
-    // Sync slug into store if not already set
-    if (clinicSlug !== slug) {
-      setClinicSlug(slug);
-    }
-
+    if (clinicSlug !== slug) setClinicSlug(slug);
     setReady(true);
   }, [isAuthenticated, isSuperAdmin, slug]);
 
@@ -54,26 +60,39 @@ export default function ClinicLayout({
     );
   }
 
-  const sidebarWidth = collapsed ? 64 : 190;
+  const sidebarWidth = collapsed ? 63 : 190;
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      {/* Navbar is fixed full-width and sits above the sidebar (higher z-index) */}
-      <Navbar title="" sidebarWidth={sidebarWidth} />
+      <Navbar
+        title=""
+        sidebarWidth={isMobile ? 0 : sidebarWidth}
+        onMobileMenuToggle={
+          isMobile ? () => setMobileOpen((o) => !o) : undefined
+        }
+      />
 
-      {/* Sidebar is fixed, starts at top:0, but padding-top clears the navbar's overlap */}
-      <Sidebar slug={slug} collapsed={collapsed} onCollapse={setCollapsed} />
+      <Sidebar
+        slug={slug}
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        isMobile={isMobile}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
 
       <main
         style={{
-          marginLeft: sidebarWidth,
+          marginLeft: isMobile ? 0 : sidebarWidth,
           paddingTop: 64,
           background: "var(--df-bg)",
           minHeight: "100vh",
           transition: "margin-left 0.2s ease",
+          minWidth: 0,
+          overflowX: "hidden",
         }}
       >
-        <div className="p-4">{children}</div>
+        <div className="p-3 p-md-4">{children}</div>
       </main>
     </div>
   );

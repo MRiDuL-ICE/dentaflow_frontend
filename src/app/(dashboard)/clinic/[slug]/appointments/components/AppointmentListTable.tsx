@@ -1,6 +1,6 @@
 import { FiChevronUp, FiChevronDown, FiEdit } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { Badge } from "reactstrap";
+import { Badge, Button } from "reactstrap";
 
 interface Appointment {
   id: string;
@@ -174,7 +174,7 @@ export function AppointmentListTable({
               onSort={onSort}
             />
             <th style={TH_STYLE}>Chair</th>
-            <th style={{ ...TH_STYLE, textAlign: "right" }}>Action</th>
+            <th style={{ ...TH_STYLE, textAlign: "left" }}>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -318,27 +318,20 @@ export function AppointmentListTable({
                   {appt.chair?.name ?? "—"}
                 </td>
                 <td style={{ padding: "12px 14px", textAlign: "right" }}>
-                  <button
+                  <Button
                     disabled={isDone}
                     onClick={() => onUpdateStatus(appt.id, appt.status)}
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
                       fontSize: 12,
                       fontWeight: 500,
                       padding: "5px 11px",
-                      borderRadius: 6,
-                      border: "0.5px solid var(--df-border)",
-                      background: "transparent",
-                      color: "var(--df-text-primary)",
                       cursor: isDone ? "not-allowed" : "pointer",
-                      opacity: isDone ? 0.35 : 1,
                       transition: "background 0.1s",
                     }}
+                    className="btn btn-primary btn-sm d-flex align-items-center gap-2"
                   >
-                    <FiEdit style={{ fontSize: 12 }} /> Update
-                  </button>
+                    <FiEdit style={{ fontSize: 12 }} /> Update Status
+                  </Button>
                 </td>
               </motion.tr>
             );

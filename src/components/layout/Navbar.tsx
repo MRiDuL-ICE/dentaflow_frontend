@@ -10,6 +10,8 @@ import {
   FiUser,
   FiSettings,
   FiLogOut,
+  FiPlus,
+  FiMoreVertical,
 } from "react-icons/fi";
 import { useThemeStore } from "@/lib/store/theme.store";
 import { useAuthStore } from "@/lib/store/auth.store";
@@ -19,22 +21,37 @@ import Breadcrumbs from "./Breadcrumbs";
 import { useState, useRef, useEffect } from "react";
 import { authApi } from "@/lib/api/endpoints";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { BookAppointmentModal } from "@/app/(dashboard)/clinic/[slug]/appointments/components/BookAppointmentModal";
+import Link from "next/link";
+import AddPatientModal from "@/app/(dashboard)/clinic/[slug]/patients/components/AddPatientModal";
 
 interface NavbarProps {
   title: string;
   sidebarWidth: number;
   onMenuToggle?: () => void;
+  onMobileMenuToggle?: () => void; // hamburger → open sidebar on mobile
 }
 
-export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
+export function Navbar({
+  title,
+  sidebarWidth,
+  onMenuToggle,
+  onMobileMenuToggle,
+}: NavbarProps) {
   const { theme, toggleTheme } = useThemeStore();
   const { user, logout, refreshToken } = useAuthStore();
   const [avatarError, setAvatarError] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
+  const [addPatientOpen, setAddPatientOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -43,6 +60,12 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
         !dropdownRef.current.contains(e.target as Node)
       ) {
         setDropdownOpen(false);
+      }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target as Node)
+      ) {
+        setMobileMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -58,12 +81,43 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
     { icon: <FiSettings size={14} />, label: "Settings", onClick: () => {} },
   ];
 
+  const dropdownItemStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    width: "100%",
+    padding: "8px 14px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 13,
+    color: "var(--df-text-primary)",
+    textAlign: "left",
+  };
+
+  const dropdownStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "calc(100% + 8px)",
+    right: 0,
+    width: 200,
+    background: "rgba(255,255,255,0.55)",
+    backdropFilter: "blur(40px) saturate(180%)",
+    WebkitBackdropFilter: "blur(40px) saturate(180%)",
+    border: "1px solid rgba(255,255,255,0.6)",
+    borderRadius: 14,
+    boxShadow: `
+      0 8px 32px rgba(0,0,0,0.12),
+      0 2px 8px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.8)
+    `,
+    zIndex: 1000,
+    overflow: "hidden",
+  };
+
   async function handleLogout() {
     const toastId = toast.loading("Signing out...");
     try {
-      if (refreshToken) {
-        await authApi.logout(refreshToken);
-      }
+      if (refreshToken) await authApi.logout(refreshToken);
     } catch {
       /* ignore */
     }
@@ -92,6 +146,28 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
           </button>
         </div>
 
+        {/* ── Hamburger — mobile only ── */}
+        {onMobileMenuToggle && (
+          <button
+            className="df-icon-btn d-flex d-md-none align-items-center justify-content-center"
+            onClick={onMobileMenuToggle}
+            aria-label="Open navigation menu"
+            style={{
+              flexShrink: 0,
+              marginLeft: 8,
+              width: 36,
+              height: 36,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              color: "var(--df-text-primary)",
+              fontSize: 20,
+            }}
+          >
+            <FiMenu />
+          </button>
+        )}
+
         {/* Logo */}
         <Image
           src="/logo without text.png"
@@ -118,7 +194,7 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
             <input placeholder="Search…" />
           </div>
 
-          {/* Right: notifications + avatar + theme toggle */}
+          {/* Right side */}
           <div
             className="df-navbar-right d-flex align-items-center"
             style={{ gap: 12, flexShrink: 0 }}
@@ -132,6 +208,86 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
             >
               <FiSearch />
             </button>
+
+            {/* Desktop: Book Appointment + Add Patient */}
+            <Button
+              onClick={() => setBookOpen(true)}
+              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+            >
+              <FiPlus />
+              Book Appointment
+            </Button>
+            {/* <Link
+              href={`/clinic/${slug}/patients/new`}
+              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+            >
+              <FiPlus />
+              Add Patient
+            </Link> */}
+            <Button
+              onClick={() => setAddPatientOpen(true)}
+              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+            >
+              <FiPlus />
+              Add Patient
+            </Button>
+
+            {/* Mobile: 3-dot menu */}
+            <div
+              ref={mobileMenuRef}
+              className="d-flex d-md-none"
+              style={{ position: "relative" }}
+            >
+              <button
+                className="df-icon-btn"
+                onClick={() => setMobileMenuOpen((v) => !v)}
+                aria-label="More options"
+              >
+                <FiMoreVertical />
+              </button>
+
+              {mobileMenuOpen && (
+                <div style={dropdownStyle}>
+                  <div style={{ padding: "4px 0" }}>
+                    <Button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setBookOpen(true);
+                      }}
+                      style={dropdownItemStyle}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(255,255,255,0.3)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "none")
+                      }
+                    >
+                      <span style={{ color: "var(--df-primary)" }}>
+                        <FiPlus size={14} />
+                      </span>
+                      Book Appointment
+                    </Button>
+                    <Button
+                      onClick={() => setMobileMenuOpen(false)}
+                      style={dropdownItemStyle}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(255,255,255,0.3)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "none")
+                      }
+                    >
+                      <span style={{ color: "var(--df-primary)" }}>
+                        <FiPlus size={14} />
+                      </span>
+                      Add Patient
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Notifications */}
             <button
@@ -189,29 +345,8 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                 )}
               </div>
 
-              {/* Dropdown */}
               {dropdownOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "calc(100% + 8px)",
-                    right: 0,
-                    width: 200,
-                    background: "rgba(255,255,255,0.55)",
-                    backdropFilter: "blur(40px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(40px) saturate(180%)",
-                    border: "1px solid rgba(255,255,255,0.6)",
-                    borderRadius: 14,
-                    boxShadow: `
-    0 8px 32px rgba(0,0,0,0.12),
-    0 2px 8px rgba(0,0,0,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.8)
-  `,
-                    zIndex: 1000,
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* User info */}
+                <div style={dropdownStyle}>
                   <div
                     style={{
                       padding: "12px 14px",
@@ -245,7 +380,6 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                     </p>
                   </div>
 
-                  {/* Menu items */}
                   <div style={{ padding: "4px 0" }}>
                     {menuItems.map((item) => (
                       <Button
@@ -254,19 +388,7 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                           item.onClick();
                           setDropdownOpen(false);
                         }}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 9,
-                          width: "100%",
-                          padding: "8px 14px",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: 13,
-                          color: "var(--df-text-primary)",
-                          textAlign: "left",
-                        }}
+                        style={dropdownItemStyle}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.background =
                             "rgba(255,255,255,0.3)")
@@ -281,8 +403,6 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                         {item.label}
                       </Button>
                     ))}
-
-                    {/* Divider + Logout */}
                     <div
                       style={{
                         borderTop: "1px solid var(--df-border)",
@@ -290,22 +410,8 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
                       }}
                     />
                     <Button
-                      onClick={() => {
-                        handleLogout();
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 9,
-                        width: "100%",
-                        padding: "8px 14px",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 13,
-                        color: "#EF4444",
-                        textAlign: "left",
-                      }}
+                      onClick={handleLogout}
+                      style={{ ...dropdownItemStyle, color: "#EF4444" }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.background =
                           "rgba(239,68,68,0.3)")
@@ -324,6 +430,17 @@ export function Navbar({ title, sidebarWidth, onMenuToggle }: NavbarProps) {
           </div>
         </div>
       </header>
+
+      {/* Modals */}
+      <BookAppointmentModal
+        isOpen={bookOpen}
+        onClose={() => setBookOpen(false)}
+      />
+
+      <AddPatientModal
+        open={addPatientOpen}
+        onClose={() => setAddPatientOpen(false)}
+      />
     </>
   );
 }

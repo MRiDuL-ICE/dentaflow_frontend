@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PatientRowSkeleton } from "./components/PatientRowSkeleton";
+import AddPatientModal from "./components/AddPatientModal";
 
 interface Patient {
   id: string;
@@ -35,30 +36,12 @@ interface Patient {
   created_at: string;
 }
 
-function SkeletonBlock({
-  width = "100%",
-  height = 14,
-  radius = 4,
-  style = {},
-}: {
-  width?: string | number;
-  height?: string | number;
-  radius?: number;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      className="df-skeleton"
-      style={{ width, height, borderRadius: radius, ...style }}
-    />
-  );
-}
-
 export default function PatientsPage() {
   const params = useParams();
   const slug = params.slug as string;
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [addPatientOpen, setAddPatientOpen] = useState(false);
 
   const { data, isLoading } = usePatients({
     search: search || undefined,
@@ -157,12 +140,14 @@ export default function PatientsPage() {
             {meta.total} total patients
           </p>
         </div>
-        <Link
-          href={`/clinic/${slug}/patients/new`}
-          className="btn btn-primary d-flex align-items-center gap-2"
+        <Button
+          color="primary"
+          onClick={() => setAddPatientOpen(true)}
+          className="d-flex align-items-center btn btn-primary gap-2"
         >
-          <FiPlus /> Add Patient
-        </Link>
+          <FiPlus />
+          Add Patient
+        </Button>
       </div>
 
       <Card>
@@ -285,6 +270,10 @@ export default function PatientsPage() {
           )}
         </CardBody>
       </Card>
+      <AddPatientModal
+        open={addPatientOpen}
+        onClose={() => setAddPatientOpen(false)}
+      />
     </div>
   );
 }

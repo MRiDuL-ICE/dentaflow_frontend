@@ -69,7 +69,7 @@ body {
 .card {
   background: var(--df-bg-card) !important;
   border-color: var(--df-border) !important;
-  border-radius: var(--df-radius-lg) !important;
+  border-radius: var(--df-radius-md) !important;
   box-shadow: var(--df-shadow) !important;
   color: var(--df-text-primary) !important;
 }
