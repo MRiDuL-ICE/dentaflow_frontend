@@ -121,7 +121,7 @@ export function AppointmentListTable({
       style={{
         background: "var(--df-bg-card)",
         border: "1px solid var(--df-border)",
-        borderRadius: 12,
+        borderRadius: 6,
         overflow: "hidden",
       }}
     >

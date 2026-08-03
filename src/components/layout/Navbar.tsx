@@ -212,21 +212,21 @@ export function Navbar({
             {/* Desktop: Book Appointment + Add Patient */}
             <Button
               onClick={() => setBookOpen(true)}
-              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
             >
               <FiPlus />
               Book Appointment
             </Button>
             {/* <Link
               href={`/clinic/${slug}/patients/new`}
-              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
             >
               <FiPlus />
               Add Patient
             </Link> */}
             <Button
               onClick={() => setAddPatientOpen(true)}
-              className="btn btn-primary btn-sm d-none d-md-flex align-items-center gap-1"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
             >
               <FiPlus />
               Add Patient
