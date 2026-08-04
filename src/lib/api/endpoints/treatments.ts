@@ -21,6 +21,15 @@ export const treatmentsApi = {
 
   updateItemStatus: (itemId: string, status: string) =>
     apiClient.patch(`/treatments/plans/items/${itemId}/status`, { status }),
+
+  createCategory: (data: { name: string; color: string }) =>
+    apiClient.post("/treatments/categories", data),
+  updateCategory: (id: string, data: { name: string; color: string }) =>
+    apiClient.patch(`/treatments/categories/${id}`, data),
+  toggleCategory: (id: string, isActive: boolean) =>
+    apiClient.patch(`/treatments/categories/${id}/toggle`, { isActive }),
+  updateDuration: (id: string, durationMinutes: number) =>
+    apiClient.patch(`/treatments/catalog/${id}/duration`, { durationMinutes }),
 };
 
 export default treatmentsApi;

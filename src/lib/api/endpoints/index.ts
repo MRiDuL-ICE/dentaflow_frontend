@@ -10,3 +10,4 @@ export * from "./reports";
 export * from "./ai";
 export * from "./portal";
 export * from "./staff";
+export * from "./clinic-settings";

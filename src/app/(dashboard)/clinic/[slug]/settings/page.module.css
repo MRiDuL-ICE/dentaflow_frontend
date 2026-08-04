@@ -1,0 +1,82 @@
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+.tabBar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    background: var(--df-surface);
+    /* your app's card surface token   */
+    border: 1px solid var(--df-border);
+    border-radius: 6px;
+    width: fit-content;
+    margin-bottom: 2rem;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: none;
+    /* border-radius: 7px; */
+    background: transparent;
+    color: var(--df-text-secondary);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.12s ease, color 0.12s ease;
+    line-height: 1;
+}
+
+.tab:hover {
+    background: var(--df-primary-dark);
+    color: var(--df-bg);
+}
+
+.tabActive {
+    background: var(--df-primary);
+    /* white / dark-surface lifted     */
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Danger tab */
+.tabDanger {
+    color: #dc3545;
+}
+
+.tabDanger:hover {
+    background: rgba(220, 53, 69, 0.06);
+    color: #dc3545;
+}
+
+.tabDangerActive {
+    background: rgba(220, 53, 69, 0.08) !important;
+    color: #dc3545 !important;
+    box-shadow: none;
+}
+
+/* Group separator */
+.sep {
+    display: block;
+    width: 1px;
+    height: 16px;
+    background: var(--df-border);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+/* Tab icon sizing */
+.tab :global(.ti) {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* ── Content panel ────────────────────────────────────────────────────────── */
+.panel {
+    /* no chrome — sections bring their own cards */
+    min-height: 400px;
+}
