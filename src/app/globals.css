@@ -471,6 +471,44 @@ body {
   color: #fff;
 }
 
+.lp-hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--df-border);
+  background: none;
+  color: var(--df-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.lp-hamburger-btn:hover {
+  border-color: var(--df-primary);
+  color: var(--df-primary);
+}
+
+.lp-drawer-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--df-border);
+  background: none;
+  color: var(--df-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.lp-drawer-close-btn:hover {
+  border-color: var(--df-primary);
+  color: var(--df-primary);
+}
+
 .lp-btn-accent {
   display: inline-flex;
   align-items: center;
@@ -518,6 +556,7 @@ body {
 .lp-btn-outline-white {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   background: transparent;
   color: #fff;
@@ -789,6 +828,7 @@ body {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, .45);
+  will-change: opacity;
 }
 
 .lp-mobile-drawer {
