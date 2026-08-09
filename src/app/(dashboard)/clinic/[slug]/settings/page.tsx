@@ -73,7 +73,7 @@ const TABS: TabDef[] = [
   { id: "clinical", label: "Clinical", icon: "ti-tooth" },
   { id: "notifications", label: "Notifications", icon: "ti-bell" },
   { id: "appointments", label: "Appointments", icon: "ti-calendar" },
-  { id: "appearance", label: "Appearance", icon: "ti-palette", groupEnd: true },
+  // { id: "appearance", label: "Appearance", icon: "ti-palette", groupEnd: true },
   {
     id: "danger",
     label: "Danger zone",
@@ -224,7 +224,7 @@ export default function SettingsPage() {
       >
         {activeSection === "staff" && (
           <StaffSection
-            staff={staff}
+            staff={staff?.data}
             loading={staffLoading}
             error={staffErr}
             isOwner={isOwner}

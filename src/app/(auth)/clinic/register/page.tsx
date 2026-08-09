@@ -505,6 +505,18 @@ export default function RegisterClinicPage() {
                   Sign in
                 </Link>
               </p>
+              <p
+                className="text-center mt-3 small"
+                style={{ color: "var(--df-text-muted)" }}
+              >
+                Register as a clinic members?{" "}
+                <Link
+                  href="/clinic/register/members"
+                  style={{ color: "var(--df-primary)" }}
+                >
+                  Members register
+                </Link>
+              </p>
             </motion.div>
           </Col>
         </Row>

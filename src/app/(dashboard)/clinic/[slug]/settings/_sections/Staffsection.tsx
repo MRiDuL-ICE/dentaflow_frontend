@@ -1,6 +1,13 @@
 "use client";
 
-import { Card, Table, Badge, Spinner, Alert, Button } from "reactstrap";
+import { Card, CardBody, Table, Badge, Alert, Button } from "reactstrap";
+import { motion } from "framer-motion";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  ColumnDef,
+} from "@tanstack/react-table";
 import type { StaffMember } from "../page";
 
 const ROLE_COLOR: Record<string, string> = {
@@ -23,6 +30,27 @@ interface StaffSectionProps {
   onAddStaff: () => void;
 }
 
+function StaffRowSkeleton() {
+  return (
+    <tr>
+      {[140, 200, 80, 90].map((w, i) => (
+        <td key={i} className="align-middle py-3">
+          <div
+            style={{
+              height: 14,
+              width: w,
+              borderRadius: 6,
+              background: "var(--df-border)",
+              opacity: 0.6,
+              animation: "skeletonShimmer 1.4s ease-in-out infinite",
+            }}
+          />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
 export function StaffSection({
   staff,
   loading,
@@ -30,81 +58,148 @@ export function StaffSection({
   isOwner,
   onAddStaff,
 }: StaffSectionProps) {
-  return (
-    <div>
-      <div className="d-flex align-items-start justify-content-between mb-4">
+  const columns: ColumnDef<StaffMember>[] = [
+    {
+      header: "Name",
+      accessorFn: (row) => `${row.first_name} ${row.last_name}`,
+      cell: ({ getValue, row }) => (
         <div>
-          <h5 className="fw-semibold mb-1">Staff</h5>
-          <p className="small mb-0" style={{ color: "var(--df-text-muted)" }}>
-            People with access to this clinic.
+          <div className="fw-medium">{getValue() as string}</div>
+          <div className="small" style={{ color: "var(--df-text-muted)" }}>
+            {row.original.email}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Role",
+      accessorKey: "role",
+      cell: ({ getValue }) => {
+        const role = getValue() as string;
+        return (
+          <Badge color={ROLE_COLOR[role] ?? "secondary"} className="df-badge">
+            {ROLE_LABEL[role] ?? role}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: "Joined",
+      accessorKey: "joined_at",
+      cell: ({ getValue }) => (
+        <span style={{ color: "var(--df-text-muted)" }}>
+          {new Date(getValue() as string).toLocaleDateString()}
+        </span>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: staff,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <div className="df-fade-in">
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.9; }
+        }
+      `}</style>
+
+      {/* Header */}
+      <div className="d-flex align-items-center justify-content-between mb-4">
+        <div>
+          <h5 className="fw-bold mb-0">Staff</h5>
+          <p
+            className="small mb-0"
+            style={{ color: "var(--df-text-secondary)" }}
+          >
+            {!loading &&
+              `${staff?.length} team member${staff?.length !== 1 ? "s" : ""}`}
           </p>
         </div>
         {isOwner && (
-          <Button color="primary" size="sm" onClick={onAddStaff}>
+          <Button
+            color="primary"
+            onClick={onAddStaff}
+            className="d-flex align-items-center gap-2"
+          >
             + Add Staff
           </Button>
         )}
       </div>
 
-      {loading && (
-        <div className="text-center py-5">
-          <Spinner size="sm" />
-        </div>
-      )}
       {error && <Alert color="danger">{error}</Alert>}
 
-      {!loading && staff.length === 0 && !error && (
-        <div
-          className="text-center py-5 rounded-3"
-          style={{
-            border: "1px dashed var(--df-border)",
-            color: "var(--df-text-muted)",
-          }}
-        >
-          <p className="mb-2" style={{ fontSize: 32 }}>
-            👥
-          </p>
-          <p className="small mb-0">
-            No staff yet. Add your first team member.
-          </p>
-        </div>
-      )}
-
-      {!loading && staff.length > 0 && (
-        <Card>
-          <Table responsive hover className="mb-0 small align-middle">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {staff.map((s) => (
-                <tr key={s.id}>
-                  <td className="fw-medium">
-                    {s.first_name} {s.last_name}
-                  </td>
-                  <td style={{ color: "var(--df-text-muted)" }}>{s.email}</td>
-                  <td>
-                    <Badge
-                      color={ROLE_COLOR[s.role] ?? "secondary"}
-                      className="df-badge"
+      <Card>
+        <CardBody className="p-0">
+          <div className="table-responsive">
+            <Table hover className="mb-0 small align-middle">
+              <thead>
+                {table.getHeaderGroups().map((hg) => (
+                  <tr key={hg.id}>
+                    {hg.headers.map((h) => (
+                      <th
+                        key={h.id}
+                        className="small text-uppercase fw-semibold px-3 py-3"
+                        style={{
+                          color: "var(--df-text-muted)",
+                          letterSpacing: "0.05em",
+                          borderBottom: "2px solid var(--df-border)",
+                        }}
+                      >
+                        {flexRender(h.column.columnDef.header, h.getContext())}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <StaffRowSkeleton key={i} />
+                  ))
+                ) : table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="text-center py-5"
+                      style={{ color: "var(--df-text-muted)" }}
                     >
-                      {ROLE_LABEL[s.role] ?? s.role}
-                    </Badge>
-                  </td>
-                  <td style={{ color: "var(--df-text-muted)" }}>
-                    {new Date(s.joined_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
-      )}
+                      <p className="mb-1" style={{ fontSize: 28 }}>
+                        👥
+                      </p>
+                      <p className="small mb-0">
+                        No staff yet. Add your first team member.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <motion.tr
+                      key={row.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="align-middle px-3">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </td>
+                      ))}
+                    </motion.tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

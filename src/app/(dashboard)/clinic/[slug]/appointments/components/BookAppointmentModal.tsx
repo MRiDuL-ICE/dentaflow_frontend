@@ -112,7 +112,7 @@ export function BookAppointmentModal({
     !createMutation.isPending;
 
   return (
-    <Modal isOpen={isOpen} toggle={handleClose} size="lg">
+    <Modal isOpen={isOpen} toggle={handleClose} size="lg" centered>
       <ModalHeader toggle={handleClose}>Book New Appointment</ModalHeader>
       <form onSubmit={handleSubmit}>
         <ModalBody>

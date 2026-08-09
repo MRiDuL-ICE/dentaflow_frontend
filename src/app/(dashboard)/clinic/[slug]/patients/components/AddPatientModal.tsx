@@ -189,7 +189,7 @@ export default function AddPatientModal({
   const canProceedStep1 = !!basic.firstName && !!basic.lastName;
 
   return (
-    <Modal isOpen={open} toggle={onClose} size="lg">
+    <Modal isOpen={open} toggle={onClose} size="lg" centered>
       <ModalHeader toggle={onClose}>
         <span>Add New Patient</span>
         <small

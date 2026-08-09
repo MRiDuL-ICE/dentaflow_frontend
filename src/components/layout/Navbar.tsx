@@ -390,8 +390,7 @@ export function Navbar({
                         }}
                         style={dropdownItemStyle}
                         onMouseEnter={(e) =>
-                          (e.currentTarget.style.background =
-                            "rgba(255,255,255,0.3)")
+                          (e.currentTarget.style.background = "#d9e4f8")
                         }
                         onMouseLeave={(e) =>
                           (e.currentTarget.style.background = "none")

@@ -54,7 +54,7 @@ export function AddStaffModal({
     const toastId = toast.loading("Adding staff member...");
     try {
       const res = await staffApi.invite({ email: form.email, role: form.role });
-      toast.success(res.data.message ?? "Staff member added!", { id: toastId });
+      toast.success("Staff member added!", { id: toastId });
       onSuccess();
       handleClose();
     } catch (err: unknown) {
